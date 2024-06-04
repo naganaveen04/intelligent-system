@@ -1,4 +1,4 @@
-ex-1
+ex-1-tsp---------
 
 class TSP:
     def __init__(self):
@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
 
 
-EX-2
+EX-2-8queens-----------
 
 class NQueenProblem:
     def __init__(self):
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     queen.solve_nq()
 
 
-EX-3
+EX-3-waterjug---------
 
 class WaterJug:
     def __init__(self):
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     main()
 
 
-EX-4
+EX-4-annealing------------
 
 
 import random
@@ -284,7 +284,7 @@ if __name__ == "__main__":
     print(solution)
 
 
-EX-5
+EX-5-decisionsystem------------
 
 #EX-5
 
@@ -338,7 +338,7 @@ print("Accuracy:", average_accuracy)
 
 
 
-EX-6
+EX-6-backpropo------------
 
 # EXP-6
 class Neuron:
@@ -388,7 +388,7 @@ hiddenNode_Three.connect(outputNode)
 inputNode.input(1)
 
 
-EX-7
+EX-7-tictactoe--------------
 
 # EXP-7
 import numpy as np
@@ -462,7 +462,7 @@ while True:
 
 
 
-EX-8
+EX-8-chatbot----------------
 
 
 # exp-8
