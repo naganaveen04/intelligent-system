@@ -1,0 +1,504 @@
+ex-1
+
+class TSP:
+    def __init__(self):
+        self.n = int(input("Enter no. of nodes: "))
+        self.weight = [[0] * self.n for _ in range(self.n)]
+        self.tour = []
+        self.INF = 1000
+        self.eval()
+
+    def eval(self):
+        for i in range(self.n):
+            for j in range(self.n):
+                if i != j:
+                    self.weight[i][j] = int(input(f"Enter weight of {i + 1} to {j + 1}: "))
+
+        print("\nStarting node assumed to be node 1.")
+        self.finalCost = self.COST(0, list(range(1, self.n)), self.n - 1)
+        self.constructTour()
+
+    def COST(self, currentNode, inputSet, setSize):
+        if setSize == 0:
+            return self.weight[currentNode][0]
+
+        return min(
+            self.weight[currentNode][i] + self.COST(i, [j for j in inputSet if j != i], setSize - 1)
+            for i in inputSet
+        )
+
+    def constructTour(self):
+        previousSet = list(range(1, self.n))
+        current_node = 0  # Start with node 1
+        for _ in range(self.n - 1):
+            current_node = min(previousSet, key=lambda x: self.weight[current_node][x])
+            self.tour.append(current_node)
+            previousSet.remove(current_node)
+
+        self.display()
+
+    def display(self):
+        print("\nThe tour is 1-", end="")
+        print("-".join(map(lambda x: str(x + 1), self.tour)), "-1")
+        print("The final cost is", self.finalCost)
+
+
+if __name__ == "__main__":
+    obj = TSP()
+
+
+
+EX-2
+
+class NQueenProblem:
+    def __init__(self):
+        self.N = 8
+        self.board = [[0] * self.N for _ in range(self.N)]
+
+    def print_solution(self):
+        for i in range(self.N):
+            for j in range(self.N):
+                print(self.board[i][j], end=" ")
+            print()
+
+    def is_safe(self, row, col):
+        for i in range(col):
+            if self.board[row][i] == 1:
+                return False
+
+        for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+            if self.board[i][j] == 1:
+                return False
+
+        for i, j in zip(range(row, self.N, 1), range(col, -1, -1)):
+            if self.board[i][j] == 1:
+                return False
+
+        return True
+
+    def solve_nq_util(self, col):
+        if col >= self.N:
+            return True
+
+        for i in range(self.N):
+            if self.is_safe(i, col):
+                self.board[i][col] = 1
+
+                if self.solve_nq_util(col + 1):
+                    return True
+
+                self.board[i][col] = 0  # Backtrack
+
+        return False
+
+    def solve_nq(self):
+        if not self.solve_nq_util(0):
+            print("Solution does not exist")
+            return False
+
+        self.print_solution()
+        return True
+
+
+if __name__ == "__main__":
+    queen = NQueenProblem()
+    queen.solve_nq()
+
+
+EX-3
+
+class WaterJug:
+    def __init__(self):
+        self.a_max = 2
+        self.b_max = 1
+        self.a = 0
+        self.b = 0
+        self.goal = 1
+
+    def check_goal(self):
+        fin = 0
+        while fin != 1:
+            if self.a == self.goal or self.b == self.goal:
+                fin = 1
+            if self.a == 0:
+                self.fill_a()
+            elif self.a > 0 and self.b != self.b_max:
+                self.transfer_a_to_b()
+            elif self.a > 0 and self.b == self.b_max:
+                self.empty_b()
+
+    def fill_a(self):
+        self.a = self.a_max
+        print("{" + str(self.a) + "," + str(self.b) + "}")
+
+    def fill_b(self):
+        self.b = self.b_max
+        print("{" + str(self.a) + "," + str(self.b) + "}")
+
+    def transfer_a_to_b(self):
+        fin = 0
+        while fin != 1:
+            self.b += 1
+            self.a -= 1
+            if self.b == self.b_max or self.a == 0:
+                fin = 1
+        print("{" + str(self.a) + "," + str(self.b) + "}")
+
+    def empty_a(self):
+        self.a = 0
+        print("{" + str(self.a) + "," + str(self.b) + "}")
+
+    def empty_b(self):
+        self.b = 0
+        print("{" + str(self.a) + "," + str(self.b) + "}")
+
+
+def main():
+    w = WaterJug()
+    w.check_goal()
+
+
+if __name__ == "__main__":
+    main()
+
+
+EX-4
+
+
+import random
+import math
+
+NUM_CITIES = 5
+MAX_GENERATIONS = 100
+POPULATION_SIZE = 10
+MUTATION_RATE = 0.1
+
+class City:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+class Route:
+    def __init__(self, path=None, fitness=None):
+        self.path = path or []
+        self.fitness = fitness
+
+def calculate_distance(city1, city2):
+    dx = city1.x - city2.x
+    dy = city1.y - city2.y
+    return math.sqrt(dx*dx + dy*dy)
+
+def generate_random_route():
+    path = list(range(NUM_CITIES))
+    random.shuffle(path)
+    return Route(path=path)
+
+def calculate_fitness(route, cities):
+    total_distance = 0.0
+    for i in range(NUM_CITIES - 1):
+        city_index1 = route.path[i]
+        city_index2 = route.path[i+1]
+        total_distance += calculate_distance(cities[city_index1], cities[city_index2])
+    last_city_index = route.path[NUM_CITIES - 1]
+    total_distance += calculate_distance(cities[last_city_index], cities[route.path[0]])
+    route.fitness = total_distance
+
+def crossover(parent1, parent2):
+    child = Route(path=[-1]*NUM_CITIES)
+
+    start_pos = random.randint(0, NUM_CITIES - 1)
+    end_pos = random.randint(0, NUM_CITIES - 1)
+
+    for i in range(NUM_CITIES):
+        if start_pos < end_pos and i > start_pos and i < end_pos:
+            child.path[i] = parent1.path[i]
+        elif start_pos > end_pos and not (i < start_pos and i > end_pos):
+            child.path[i] = parent1.path[i]
+        else:
+            child.path[i] = -1
+
+    for i in range(NUM_CITIES):
+        if parent2.path[i] not in child.path:
+            for j in range(NUM_CITIES):
+                if child.path[j] == -1:
+                    child.path[j] = parent2.path[i]
+                    break
+
+    return child
+
+def mutate(route):
+    for i in range(NUM_CITIES):
+        if random.random() < MUTATION_RATE:
+            swap_index = random.randint(0, NUM_CITIES - 1)
+            route.path[i], route.path[swap_index] = route.path[swap_index], route.path[i]
+
+def find_best_route(population):
+    best_fitness = float('inf')
+    best_index = -1
+    for i, route in enumerate(population):
+        if route.fitness < best_fitness:
+            best_fitness = route.fitness
+            best_index = i
+    return population[best_index]
+
+if __name__ == "__main__":
+    cities = [
+        City(60, 200),
+        City(180, 200),
+        City(80, 180),
+        City(140, 180),
+        City(20, 160),
+        # Add more cities similarly(If Needed)
+    ]
+
+    population = [generate_random_route() for _ in range(POPULATION_SIZE)]
+    for route in population:
+        calculate_fitness(route, cities)
+
+    initial_distance = sum(calculate_distance(cities[population[0].path[i]], cities[population[0].path[i + 1]]) for i in range(NUM_CITIES - 1))
+    initial_distance += calculate_distance(cities[population[0].path[NUM_CITIES - 1]], cities[population[0].path[0]])
+    print("Initial Distance:", initial_distance)
+
+    for generation in range(MAX_GENERATIONS):
+        new_population = []
+
+        for _ in range(POPULATION_SIZE):
+            parent1 = find_best_route(population)
+            parent2 = find_best_route(population)
+            child = crossover(parent1, parent2)
+            mutate(child)
+            calculate_fitness(child, cities)
+            new_population.append(child)
+
+        population = new_population
+
+    best_route = find_best_route(population)
+    print("FINISHED")
+
+    final_distance = sum(calculate_distance(cities[best_route.path[i]], cities[best_route.path[i + 1]]) for i in range(NUM_CITIES - 1))
+    final_distance += calculate_distance(cities[best_route.path[NUM_CITIES - 1]], cities[best_route.path[0]])
+    print("Final Distance:", final_distance)
+
+    solution = ",".join([f"{cities[city_index].y}|{cities[city_index].x}" for city_index in best_route.path])
+    print("Solution:")
+    print(solution)
+
+
+EX-5
+
+#EX-5
+
+from sklearn.model_selection import StratifiedKFold
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import confusion_matrix, accuracy_score
+import numpy as np
+from sklearn.datasets import load_iris
+
+# Load Fisher Iris dataset
+iris = load_iris()
+data = iris.data
+labels = iris.target
+
+# Set random seed
+np.random.seed(1)
+
+# k-fold cross-validation
+kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
+confusion_matrices = []
+accuracies = []
+
+for train_index, test_index in kf.split(data, labels):
+    X_train, X_test = data[train_index], data[test_index]
+    y_train, y_test = labels[train_index], labels[test_index]
+
+    # Decision tree classification
+    ctree = DecisionTreeClassifier()
+    ctree.fit(X_train, y_train)
+
+    # Predict new class
+    pc = ctree.predict(X_test)
+
+    # Confusion Matrix
+    confusion_matrix_i = confusion_matrix(y_test, pc)
+    confusion_matrices.append(confusion_matrix_i)
+
+    # Accuracy
+    accuracy_i = accuracy_score(y_test, pc) * 100
+    accuracies.append(accuracy_i)
+
+# Average Confusion Matrix
+average_confusion_matrix = np.mean(confusion_matrices, axis=0)
+
+# Average Accuracy
+average_accuracy = np.mean(accuracies)
+
+print("Confusion Matrix:")
+print(average_confusion_matrix)
+print("Accuracy:", average_accuracy)
+
+
+
+EX-6
+
+# EXP-6
+class Neuron:
+    def __init__(self, activationValue, weight, neuronName, nInputs):
+        self.activationValue = activationValue
+        self.weight = weight
+        self.neuronName = neuronName
+        self.outputs = []
+        self.inputs = [0] * nInputs
+        self.inputCounter = 0
+        self.nInputs = nInputs
+
+    def connect(self, neuron):
+        self.outputs.append(neuron)
+
+    def input(self, inputValue):
+        self.inputs[self.inputCounter] = inputValue
+        self.inputCounter += 1
+        if self.inputCounter == self.nInputs:
+            self.fire()
+
+    def fire(self):
+        total_input = sum(self.inputs)
+        signal = total_input * self.weight
+        if signal > self.activationValue:
+            for output_neuron in self.outputs:
+                output_neuron.input(signal)
+        else:
+            for output_neuron in self.outputs:
+                output_neuron.input(0)
+        print(self.neuronName + ":" + str(signal))
+
+
+inputNode = Neuron(0, 1, "InputNode", 1)
+hiddenNode_One = Neuron(0.5, 0.9, "HiddenNode_One", 1)
+hiddenNode_Two = Neuron(0.5, 0.9, "HiddenNode_Two", 1)
+hiddenNode_Three = Neuron(0.5, 0.9, "HiddenNode_Three", 1)
+outputNode = Neuron(0, 0.9, "OutputNode", 3)
+
+inputNode.connect(hiddenNode_One)
+inputNode.connect(hiddenNode_Two)
+inputNode.connect(hiddenNode_Three)
+hiddenNode_One.connect(outputNode)
+hiddenNode_Two.connect(outputNode)
+hiddenNode_Three.connect(outputNode)
+
+inputNode.input(1)
+
+
+EX-7
+
+# EXP-7
+import numpy as np
+
+board = np.array([str(i) for i in range(1, 10)])
+turn = "X"
+
+def print_board():
+    print("/---|---|---\\")
+    print("| " + board[0] + " | " + board[1] + " | " + board[2] + " |")
+    print("|-----------|")
+    print("| " + board[3] + " | " + board[4] + " | " + board[5] + " |")
+    print("|-----------|")
+    print("| " + board[6] + " | " + board[7] + " | " + board[8] + " |")
+    print("/---|---|---\\")
+
+def check_winner():
+    for a in range(8):
+        line = None
+        if a == 0:
+            line = board[0] + board[1] + board[2]
+        elif a == 1:
+            line = board[3] + board[4] + board[5]
+        elif a == 2:
+            line = board[6] + board[7] + board[8]
+        elif a == 3:
+            line = board[0] + board[3] + board[6]
+        elif a == 4:
+            line = board[1] + board[4] + board[7]
+        elif a == 5:
+            line = board[2] + board[5] + board[8]
+        elif a == 6:
+            line = board[0] + board[4] + board[8]
+        elif a == 7:
+            line = board[2] + board[4] + board[6]
+
+        if line == "XXX":
+            return "X"
+        elif line == "OOO":
+            return "O"
+
+    if "1" in board or "2" in board or "3" in board or "4" in board or "5" in board or "6" in board or "7" in board or "8" in board or "9" in board:
+        return None
+    else:
+        return "draw"
+
+print("Welcome to 2 Player Tic Tac Toe.")
+print("--------------------------------")
+print_board()
+print("X's will play first. Enter a slot number to place X in:")
+
+while True:
+    num_input = int(input())
+    if num_input < 1 or num_input > 9:
+        print("Invalid input; re-enter slot number:")
+        continue
+
+    if board[num_input-1] == str(num_input):
+        board[num_input-1] = turn
+        turn = "O" if turn == "X" else "X"
+        print_board()
+        winner = check_winner()
+        if winner:
+            if winner == "draw":
+                print("It's a draw! Thanks for playing.")
+            else:
+                print(f"Congratulations! {winner}'s have won! Thanks for playing.")
+            break
+    else:
+        print("Slot already taken; re-enter slot number:")
+
+
+
+EX-8
+
+
+# exp-8
+import random
+
+class ChatBot:
+    def __init__(self):
+        self.chatBot = {
+            "hi": ["hello", "hola", "ola", "howdy"],
+            "how are you": ["good", "doing well"],
+            "yes": [],
+            "no": ["NO", "NO!!!!!!!"],
+            "shut up": ["you're bad", "noob", "stop talking", "(Karthi is unavailable, due to LOL)"]
+        }
+
+    def get_chatbot_response(self, user_input):
+        user_input_lower = user_input.lower()
+
+        for key in self.chatBot:
+            if user_input_lower in key:
+                if self.chatBot[key]:
+                    return random.choice(self.chatBot[key])
+                else:
+                    return "No response available for this input."
+
+        return random.choice(self.chatBot["shut up"])
+
+# Initialize the chatbot
+chat_bot = ChatBot()
+
+# Chat loop
+while True:
+    user_input = input("You: ")
+    if user_input.lower() == 'exit':
+        break
+
+    response = chat_bot.get_chatbot_response(user_input)
+    print("ChatBot:", response)
+
